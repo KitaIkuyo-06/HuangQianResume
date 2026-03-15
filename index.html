@@ -7,10 +7,11 @@
     <style>
         /* 基础重置与变量声明 */
         :root {
-            --glass-bg: rgba(255, 255, 255, 0.05);
+            --glass-bg: rgba(255, 255, 255, 0.03); /* 降低了白色的浓度，使其更透明 */
             --glass-border: rgba(255, 255, 255, 0.1);
             --text-main: #ffffff;
             --text-muted: #a0a0a0;
+            --accent-color: #3b82f6;
         }
 
         * {
@@ -20,40 +21,62 @@
             font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
         }
 
-        /* 深色背景与渐变光晕 */
+        /* 深色背景底色 */
         body {
-            background-color: #0f172a; /* 深蓝色背景 */
+            background-color: #0f172a; 
             color: var(--text-main);
             min-height: 100vh;
             display: flex;
             justify-content: center;
-            align-items: center;
-            padding: 2rem;
+            align-items: flex-start; 
+            padding: 4rem 2rem;
             position: relative;
             overflow-x: hidden;
         }
 
-        /* 制造玻璃拟态背后的色彩斑斓效果 */
+        /* 1. 全屏背景幻灯片放映 (纯 CSS 实现) */
+        .slideshow-bg {
+            position: fixed;
+            top: 0; left: 0; width: 100vw; height: 100vh;
+            z-index: -3; 
+            background-color: #0f172a;
+        }
+        .slide {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background-size: cover;
+            background-position: center;
+            opacity: 0;
+            /* 动画：总时长30秒 (6张图 x 5秒) */
+            animation: fadeAnimation 35s infinite;
+        }
+        /* 提高了最大透明度，让图片能稍微看清一点 */
+        @keyframes fadeAnimation {
+            0% { opacity: 0; }
+            4% { opacity: 0.5; } 
+            16% { opacity: 0.5; } 
+            20% { opacity: 0; }
+            100% { opacity: 0; }
+        }
+        /* 6张图的延迟时间 */
+        .slide:nth-child(1) { animation-delay: 0s; background-image: url('waterreimu.jpg'); }
+        .slide:nth-child(2) { animation-delay: 5s; background-image: url('mikas.jpg'); }
+        .slide:nth-child(3) { animation-delay: 10s; background-image: url('ri2.jpg'); }
+        .slide:nth-child(4) { animation-delay: 15s; background-image: url('reimu.jpg'); }
+        .slide:nth-child(5) { animation-delay: 20s; background-image: url('emma.png'); }
+        .slide:nth-child(6) { animation-delay: 25s; background-image: url('ri.png'); }
+        .slide:nth-child(7) { animation-delay: 30s; background-image: url('mika.png'); }
+
+        /* 原有的彩色光晕保留，增加玻璃质感 */
         .bg-shape {
             position: fixed;
             border-radius: 50%;
             filter: blur(80px);
-            z-index: -1;
+            z-index: -2;
+            opacity: 0.6;
         }
-        .shape1 {
-            width: 400px;
-            height: 400px;
-            background: #3b82f6;
-            top: -100px;
-            left: -100px;
-        }
-        .shape2 {
-            width: 300px;
-            height: 300px;
-            background: #8b5cf6;
-            bottom: 10%;
-            right: 5%;
-        }
+        .shape1 { width: 400px; height: 400px; background: #3b82f6; top: -100px; left: -100px; }
+        .shape2 { width: 300px; height: 300px; background: #8b5cf6; bottom: 10%; right: 5%; }
 
         /* 主体网格容器 */
         .container {
@@ -68,91 +91,131 @@
         /* 核心玻璃拟态卡片样式 */
         .glass-card {
             background: var(--glass-bg);
-            backdrop-filter: blur(16px);
-            -webkit-backdrop-filter: blur(16px);
+            backdrop-filter: blur(8px); 
+            -webkit-backdrop-filter: blur(8px);
             border: 1px solid var(--glass-border);
             border-radius: 24px;
             padding: 2rem;
             box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
             transition: transform 0.3s ease;
         }
+        .glass-card:hover { transform: translateY(-5px); }
 
-        .glass-card:hover {
-            transform: translateY(-5px);
-        }
+        /* 网格布局分配 */
+        .profile-card { grid-column: span 1; display: flex; flex-direction: column; align-items: center; text-align: center; }
+        .about-card { grid-column: span 2; }
+        .skills-card { grid-column: span 2; }
+        .contact-card { grid-column: span 1; }
+        .portfolio-card { grid-column: 1 / -1; } 
 
-        /* 特定卡片布局分配 */
-        .profile-card {
-            grid-column: span 1;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            text-align: center;
-        }
-
-        .about-card {
-            grid-column: span 2;
-        }
-
-        .skills-card {
-            grid-column: span 2;
-        }
-
-        .contact-card {
-            grid-column: span 1;
-        }
-
-        /* 图片样式 */
-        .profile-img {
-            width: 120px;
-            height: 120px;
-            border-radius: 50%;
-            object-fit: cover;
-            border: 2px solid var(--glass-border);
-            margin-bottom: 1rem;
-            background-color: rgba(255,255,255,0.1); /* 图片未加载时的占位色 */
-        }
-
-        /* 排版样式 */
-        h1 {
-            font-size: 2rem;
-            margin-bottom: 0.5rem;
-            letter-spacing: 2px;
-        }
-        h2 {
-            font-size: 1.5rem;
-            margin-bottom: 1rem;
-            color: #e2e8f0;
-            border-bottom: 1px solid var(--glass-border);
-            padding-bottom: 0.5rem;
-        }
-        p {
-            line-height: 1.6;
-            color: var(--text-muted);
-            margin-bottom: 0.5rem;
-        }
-        .tag {
-            display: inline-block;
-            background: rgba(255, 255, 255, 0.1);
-            padding: 0.4rem 0.8rem;
-            border-radius: 20px;
-            font-size: 0.9rem;
-            margin: 0.2rem;
+        /* 2. 可折叠栏位 (手风琴) 样式 */
+        details.accordion {
+            background: rgba(255, 255, 255, 0.03);
             border: 1px solid var(--glass-border);
+            border-radius: 16px;
+            margin-bottom: 1rem;
+            transition: background 0.3s ease;
+        }
+        details.accordion:hover {
+            background: rgba(255, 255, 255, 0.08);
+        }
+        details.accordion:last-child {
+            margin-bottom: 0;
+        }
+        
+        /* 折叠标题栏 */
+        summary.accordion-title {
+            padding: 1.2rem 1.5rem;
+            font-size: 1.1rem;
+            font-weight: bold;
+            color: #e2e8f0;
+            cursor: pointer;
+            list-style: none; 
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        summary.accordion-title::-webkit-details-marker { display: none; }
+        summary.accordion-title::after {
+            content: '+';
+            font-size: 1.5rem;
+            font-weight: normal;
+            color: var(--text-muted);
+            transition: transform 0.3s ease;
+        }
+        details[open] summary.accordion-title::after {
+            transform: rotate(45deg);
         }
 
-        /* 响应式设计：在小屏幕上单列显示 */
+        /* 折叠内容区：改为垂直排布，图片占满一行 */
+        .accordion-content {
+            padding: 0 1.5rem 1.5rem 1.5rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.05);
+            margin-top: 0.5rem;
+            padding-top: 1.5rem;
+            display: flex;
+            flex-direction: column; /* 关键修改：改为垂直排列 */
+            gap: 1.5rem; 
+            color: var(--text-muted);
+            line-height: 1.6;
+        }
+        
+        /* 修改图片尺寸，使其占据展示部分的全部宽度 */
+        .content-img {
+            width: 100%; /* 占据 100% 宽度 */
+            height: auto;
+            max-height: 500px; /* 增加最大高度限制，防止图片过长 */
+            aspect-ratio: 16 / 9; 
+            object-fit: cover;
+            border-radius: 12px;
+            border: 1px solid var(--glass-border);
+            flex-shrink: 0;
+            margin-bottom: 0.5rem;
+        }
+
+        .content-text { width: 100%; }
+        .content-text h3 { color: var(--text-main); margin-bottom: 0.5rem; font-size: 1.1rem;}
+        
+        /* 按钮/链接样式 */
+        .link-btn {
+            display: inline-block;
+            margin-top: 1rem;
+            padding: 0.5rem 1.2rem;
+            background: rgba(59, 130, 246, 0.2); 
+            border: 1px solid rgba(59, 130, 246, 0.5);
+            color: #fff;
+            text-decoration: none;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+        }
+        .link-btn:hover { background: rgba(59, 130, 246, 0.4); }
+
+        /* 基础样式复用 */
+        .profile-img { width: 120px; height: 120px; border-radius: 50%; object-fit: cover; border: 2px solid var(--glass-border); margin-bottom: 1rem; background-color: rgba(255,255,255,0.1); }
+        h1 { font-size: 2rem; margin-bottom: 0.5rem; letter-spacing: 2px; }
+        h2 { font-size: 1.5rem; margin-bottom: 1rem; color: #e2e8f0; border-bottom: 1px solid var(--glass-border); padding-bottom: 0.5rem; }
+        p { line-height: 1.6; color: var(--text-muted); margin-bottom: 0.5rem; }
+        .tag { display: inline-block; background: rgba(255, 255, 255, 0.1); padding: 0.4rem 0.8rem; border-radius: 20px; font-size: 0.9rem; margin: 0.2rem; border: 1px solid var(--glass-border); }
+
+        /* 响应式适配 */
         @media (max-width: 768px) {
-            .container {
-                grid-template-columns: 1fr;
-            }
-            .profile-card, .about-card, .skills-card, .contact-card {
-                grid-column: span 1;
-            }
+            .container { grid-template-columns: 1fr; }
+            .profile-card, .about-card, .skills-card, .contact-card { grid-column: span 1; }
         }
     </style>
 </head>
 <body>
+
+    <div class="slideshow-bg">
+        <div class="slide"></div>
+        <div class="slide"></div>
+        <div class="slide"></div>
+        <div class="slide"></div>
+        <div class="slide"></div>
+        <div class="slide"></div>
+        <div class="slide"></div>
+    </div>
 
     <div class="bg-shape shape1"></div>
     <div class="bg-shape shape2"></div>
@@ -161,14 +224,14 @@
         <section class="glass-card profile-card">
             <img src="xi.png" alt="黄前的头像" class="profile-img">
             <h1>黄前</h1>
-            <p style="color: #cbd5e1; font-weight: bold;">深度学习/计算机图形学/Unity开发</p>
+            <p style="color: #cbd5e1; font-weight: bold;">深度学习 / 计算机图形学 / Unity开发</p>
             <p>热衷于代码与美学的结合。</p>
         </section>
 
         <section class="glass-card about-card">
             <h2>关于我</h2>
             <p>你好！我是黄前。我致力于通过技术创造优秀的用户体验。对现代深度学习、计算机图形学以及优雅的架构设计有着浓厚的兴趣。</p>
-            <p>在这里你可以展示你的教育背景、过往经历或者是你的个人爱好。这段文字可以根据你的实际情况自由发挥，玻璃拟态的背景会自动适应文字的高度。</p>
+            <p>在这里你可以展示你的教育背景、过往经历或者是你的个人爱好。这段文字可以根据你的实际情况自由发挥。</p>
         </section>
 
         <section class="glass-card skills-card">
@@ -185,8 +248,58 @@
         <section class="glass-card contact-card">
             <h2>联系我</h2>
             <p>📧 Email: 3494266702@qq.com</p>
-            <p>🐙 GitHub: @SakuraEmma</p>
+            <p>🐙 GitHub: @KitaIkuyo-06</p>
             <p>🌐 坐标: 西安</p>
+        </section>
+
+        <section class="glass-card portfolio-card">
+            <h2>详细经历与作品集</h2>
+            
+            <details class="accordion">
+                <summary class="accordion-title">本科成绩与经历</summary>
+                <div class="accordion-content">
+                    <div class="content-text">
+                        <h3>计算机科学核心课程</h3>
+                        <p>我是空。</p>
+                        <a href="https://github.com/KitaIkuyo-06" target="_blank" class="link-btn">查看详细成绩单 / GitHub</a>
+                    </div>
+                </div>
+            </details>
+
+            <details class="accordion">
+                <summary class="accordion-title">OpenGL作品集展示</summary>
+                <div class="accordion-content">
+                    <img src="opengl01.png" alt="OpenGL渲染图" class="content-img"> 
+                    <div class="content-text">
+                        <h3>基于 OpenGL 的 3D 渲染实践</h3>
+                        <p>我是空。</p>
+                        <a href="#" class="link-btn">浏览项目源码</a>
+                    </div>
+                </div>
+            </details>
+
+            <details class="accordion">
+                <summary class="accordion-title">深度学习项目展示</summary>
+                <div class="accordion-content">
+                    <div class="content-text">
+                        <h3>计算机视觉与神经网络</h3>
+                        <p>在此处描述你的 Python 深度学习项目，例如 PyTorch 框架下的模型开发。</p>
+                        <a href="#" class="link-btn">查看模型演示</a>
+                    </div>
+                </div>
+            </details>
+
+            <details class="accordion">
+                <summary class="accordion-title">Unity作品集展示</summary>
+                <div class="accordion-content">
+                    <div class="content-text">
+                        <h3>游戏与交互开发</h3>
+                        <p>结合 C# 进行 Unity 游戏逻辑开发，追求干净通透的视觉呈现。</p>
+                        <a href="#" class="link-btn">试玩 Demo / 观看视频</a>
+                    </div>
+                </div>
+            </details>
+
         </section>
     </main>
 
